@@ -2,7 +2,6 @@ package dd
 
 import (
 	"fmt"
-	"math/rand"
 	"strings"
 	"time"
 )
@@ -31,65 +30,55 @@ func New() (*Client, error) {
 
 // send handles sampling and sends the message to stdout. It also adds global namespace prefixes and tags.
 // format: MONITORING|<unix_epoch_timestamp>|<value>|<metric_type>|<metric_name>|#<tag_list>
-func (c *Client) sendFloat(name string, value float64, metric metricType, tags []string, rate float64) error {
-	if c == nil {
-		return nil
-	}
-	if rate < 1 && rand.Float64() > rate {
-		return nil
-	}
-
-	_, err := fmt.Printf("MONITORING|%d|%f|%s|%s.%s|%s",
+func (c *Client) sendFloat(name string, value float64, metric metricType, tags []string) error {
+	metricLog := fmt.Sprintf("MONITORING|%d|%f|%s|%s.%s|%s",
 		time.Now().UTC().Unix(),
 		value, metric,
 		c.Namespace,
 		name,
 		strings.Join(tags, ","))
+
+	_, err := fmt.Println(metricLog)
 
 	return err
 }
 
 // send handles sampling and sends the message to stdout. It also adds global namespace prefixes and tags.
 // format: MONITORING|<unix_epoch_timestamp>|<value>|<metric_type>|<metric_name>|#<tag_list>
-func (c *Client) sendInt(name string, value int64, metric metricType, tags []string, rate float64) error {
-	if c == nil {
-		return nil
-	}
-	if rate < 1 && rand.Float64() > rate {
-		return nil
-	}
-
-	_, err := fmt.Printf("MONITORING|%d|%d|%s|%s.%s|%s",
+func (c *Client) sendInt(name string, value int64, metric metricType, tags []string) error {
+	metricLog := fmt.Sprintf("MONITORING|%d|%d|%s|%s.%s|%s",
 		time.Now().UTC().Unix(),
 		value, metric,
 		c.Namespace,
 		name,
 		strings.Join(tags, ","))
 
+	_, err := fmt.Println(metricLog)
+
 	return err
 }
 
 // Count tracks how many times something happened per second.
-func (c *Client) Count(name string, value int64, tags []string, rate float64) error {
-	return c.sendInt(name, value, gauge, tags, rate)
+func (c *Client) Count(name string, value int64, tags []string) error {
+	return c.sendInt(name, value, gauge, tags)
 }
 
 // Decr is just Count of -1
-func (c *Client) Decr(name string, tags []string, rate float64) error {
-	return c.sendInt(name, -1, count, tags, rate)
+func (c *Client) Decr(name string, tags []string) error {
+	return c.sendInt(name, -1, count, tags)
 }
 
 // Gauge measures the value of a metric at a particular time.
-func (c *Client) Gauge(name string, value float64, tags []string, rate float64) error {
-	return c.sendFloat(name, value, gauge, tags, rate)
+func (c *Client) Gauge(name string, value float64, tags []string) error {
+	return c.sendFloat(name, value, gauge, tags)
 }
 
 // Histogram tracks the statistical distribution of a set of values on each host.
-func (c *Client) Histogram(name string, value float64, tags []string, rate float64) error {
-	return c.sendFloat(name, value, histogram, tags, rate)
+func (c *Client) Histogram(name string, value float64, tags []string) error {
+	return c.sendFloat(name, value, histogram, tags)
 }
 
 // Incr is just Count of 1
-func (c *Client) Incr(name string, tags []string, rate float64) error {
-	return c.sendInt(name, 1, count, tags, rate)
+func (c *Client) Incr(name string, tags []string) error {
+	return c.sendInt(name, 1, count, tags)
 }
