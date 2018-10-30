@@ -28,15 +28,22 @@ func New() (*Client, error) {
 	return &Client{}, nil
 }
 
+// Merge the global tags with the mer metric tags
+func (c *Client) combineTags(tags []string) []string {
+	return append(c.Tags, tags...)
+}
+
 // send handles sampling and sends the message to stdout. It also adds global namespace prefixes and tags.
 // format: MONITORING|<unix_epoch_timestamp>|<value>|<metric_type>|<metric_name>|#<tag_list>
 func (c *Client) sendFloat(name string, value float64, metric metricType, tags []string) error {
-	metricLog := fmt.Sprintf("MONITORING|%d|%f|%s|%s.%s|%s",
+	metricLog := fmt.Sprintf(
+		"MONITORING|%d|%f|%s|%s.%s|%s",
 		time.Now().UTC().Unix(),
 		value, metric,
 		c.Namespace,
 		name,
-		strings.Join(tags, ","))
+		strings.Join(c.combineTags(tags), ","),
+	)
 
 	_, err := fmt.Println(metricLog)
 
@@ -46,12 +53,14 @@ func (c *Client) sendFloat(name string, value float64, metric metricType, tags [
 // send handles sampling and sends the message to stdout. It also adds global namespace prefixes and tags.
 // format: MONITORING|<unix_epoch_timestamp>|<value>|<metric_type>|<metric_name>|#<tag_list>
 func (c *Client) sendInt(name string, value int64, metric metricType, tags []string) error {
-	metricLog := fmt.Sprintf("MONITORING|%d|%d|%s|%s.%s|%s",
+	metricLog := fmt.Sprintf(
+		"MONITORING|%d|%d|%s|%s.%s|%s",
 		time.Now().UTC().Unix(),
 		value, metric,
 		c.Namespace,
 		name,
-		strings.Join(tags, ","))
+		strings.Join(c.combineTags(tags), ","),
+	)
 
 	_, err := fmt.Println(metricLog)
 
