@@ -37,7 +37,7 @@ func (c *Client) combineTags(tags []string) []string {
 // format: MONITORING|<unix_epoch_timestamp>|<value>|<metric_type>|<metric_name>|#<tag_list>
 func (c *Client) sendFloat(name string, value float64, metric metricType, tags []string) error {
 	metricLog := fmt.Sprintf(
-		"MONITORING|%d|%f|%s|%s.%s|%s",
+		"MONITORING|%d|%f|%s|%s.%s|#%s",
 		time.Now().UTC().Unix(),
 		value, metric,
 		c.Namespace,
@@ -54,7 +54,7 @@ func (c *Client) sendFloat(name string, value float64, metric metricType, tags [
 // format: MONITORING|<unix_epoch_timestamp>|<value>|<metric_type>|<metric_name>|#<tag_list>
 func (c *Client) sendInt(name string, value int64, metric metricType, tags []string) error {
 	metricLog := fmt.Sprintf(
-		"MONITORING|%d|%d|%s|%s.%s|%s",
+		"MONITORING|%d|%d|%s|%s.%s|#%s",
 		time.Now().UTC().Unix(),
 		value, metric,
 		c.Namespace,
